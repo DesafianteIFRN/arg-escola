@@ -14,6 +14,9 @@ document.addEventListener('DOMContentLoaded', function() {
     let score = 0;
     let running = false;
     let mover;
+    let timerInterval;
+    let timeLeft = 20;
+    const timerEl = document.createElement('div'); // will be assigned later
 
     function updateScore(delta) {
         score += delta;
@@ -60,28 +63,71 @@ document.addEventListener('DOMContentLoaded', function() {
         restartBtn.disabled = false;
         finalBox.classList.add('hidden');
         spawnLoop();
+        startTimer();
     });
 
-    restartBtn.addEventListener('click', function() {
+    function restartGame() {
         running = false;
         startBtn.disabled = false;
         restartBtn.disabled = true;
         clearInterval(mover);
+        clearInterval(timerInterval);
         score = 0;
+        timeLeft = 20;
         scoreEl.textContent = 'Pontos: 0';
+        timerEl.textContent = 'Tempo: 20s';
         finalBox.classList.add('hidden');
         moveTarget();
-    });
+    }
+
+    restartBtn.addEventListener('click', restartGame);
+
 
     function finishGame() {
         running = false;
         clearInterval(mover);
+        clearInterval(timerInterval);
         finalBox.classList.remove('hidden');
+        finalBox.innerHTML = `
+            <p>Parabéns! Você alcançou 1000 pontos.</p>
+            <p>Aqui está o link final: <a id="final-link" href="https://forms.gle/m2QbQSywf5TDouo1A" target="_blank">Abrir link</a></p>
+        `;
         startBtn.disabled = true;
         restartBtn.disabled = false;
     }
 
+    // initialise timer element
+    timerEl.id = 'timer';
+    timerEl.textContent = 'Tempo: 20s';
+    scoreEl.after(timerEl);
+
     // initial state
     restartBtn.disabled = true;
     moveTarget();
+
+    function startTimer() {
+        timeLeft = 20;
+        timerEl.textContent = 'Tempo: ' + timeLeft + 's';
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = 'Tempo: ' + timeLeft + 's';
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                if (score < 1000) {
+                    gameOver();
+                }
+            }
+        }, 1000);
+    }
+
+    function gameOver() {
+        running = false;
+        clearInterval(mover);
+        finalBox.classList.remove('hidden');
+        finalBox.innerHTML = `<p>Game Over! Você não chegou a 1000 pontos.</p>`;
+        startBtn.disabled = false;
+        restartBtn.disabled = true;
+        setTimeout(restartGame, 3000);
+    }
+
 });

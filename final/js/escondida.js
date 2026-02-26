@@ -29,8 +29,6 @@ document.addEventListener('DOMContentLoaded', function() {
         span.style.left = x + 'px';
         span.style.top = y + 'px';
 
-        span.addEventListener('click', function() {
-            window.location.href = '../tempo/tempo.html';
+        
         });
     });
-});
